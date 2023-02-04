@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    font-size: 2vw;
+    user-select: none;
+}
+
+img {
+    -webkit-user-drag: none;
+    pointer-events: none
+}
+
+@media (orientation: landscape) {
+    html,
+    body {
+        font-size: 2vh;
+    }
+}
+
+@layer components {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+}
