@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Auguste</string>
+    <string name="title_activity_main">Auguste</string>
+    <string name="package_name">de.alzhmeimerniedersachsen.auguste</string>
+    <string name="custom_url_scheme">de.alzhmeimerniedersachsen.auguste</string>
+</resources>
