@@ -20,65 +20,60 @@ export const Gallery: React.FC = () => {
   const { pictures } = useLoaderData() as LoaderData;
   const [error, setError] = useState<string | undefined>();
 
-  const startUpload = async () => {
-    const [fileHandle] = await window.showOpenFilePicker({
-      multiple: true,
-      excludeAcceptAllOption: true,
-      types: [
-        {
-          description: "Fotos",
-          accept: {
-            "image/*": [".png", ".gif", ".jpeg", ".jpg", ".webp", ".heic"],
-          },
-        },
-      ],
-    });
-    const file = await fileHandle.getFile();
-    const image = await createImageBitmap(file);
-    console.log({ image, file });
+  const onUploadFromComputerChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!event.currentTarget.files) return;
+    const files: FileList = Object.assign([], event.currentTarget.files);
+    for (const file of files) {
+      const image = await createImageBitmap(file);
+      console.log({ image, file });
 
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const MAX_WIDTH = 300;
-      const MAX_HEIGHT = 300;
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        const MAX_WIDTH = 300;
+        const MAX_HEIGHT = 300;
 
-      let { width, height } = image;
-      if (width > height) {
-        if (width > MAX_WIDTH) {
-          height = height * (MAX_WIDTH / width);
-          width = MAX_WIDTH;
+        let { width, height } = image;
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = height * (MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = width * (MAX_HEIGHT / height);
+            height = MAX_HEIGHT;
+          }
         }
-      } else {
-        if (height > MAX_HEIGHT) {
-          width = width * (MAX_HEIGHT / height);
-          height = MAX_HEIGHT;
-        }
+
+        ctx.drawImage(image, 0, 0, width, height);
+        canvas.toBlob((data) => {
+          if (!data) {
+            setError("Foto konnte nicht hochgeladen werden");
+            return;
+          }
+
+          let text: string | null = null;
+          for (let i = 0; i < MAX_TRIES; i++) {
+            text = prompt("Beschriftung");
+            if (text) break;
+          }
+          text = text || "Neues Bild";
+
+          addPicture({ text, data });
+          revalidate();
+        });
       }
-
-      ctx.drawImage(image, 0, 0, width, height);
-      canvas.toBlob((data) => {
-        if (!data) {
-          setError("Foto konnte nicht hochgeladen werden");
-          return;
-        }
-
-        let text: string | null = null;
-        for (let i = 0; i < MAX_TRIES; i++) {
-          text = prompt("Beschriftung");
-          if (text) break;
-        }
-        text = text || "Neues Bild";
-
-        addPicture({ text, data });
-        revalidate();
-      });
     }
   };
 
   return (
     <>
       <div className="bg-black/60 h-[66.6%] absolute left-0 right-0 top-[17%] overflow-x-auto overflow-y-hidden">
+        {error && <div className="bg-red-100 text-red-900 p-5">{error}</div>}
+
         {pictures.map((pic, key) => (
           <img key={key} src={URL.createObjectURL(pic.data)} alt="" />
         ))}
@@ -88,13 +83,21 @@ export const Gallery: React.FC = () => {
         <img src={back} alt="Zurück" />
       </Link>
 
-      <button
-        type="button"
-        onClick={startUpload}
-        className="absolute bg-yellow-300 py-[1%] px-[2%] shadow-2xl whitespace-nowrap rounded-full bottom-0 right-0 text-2xl m-[1%]"
+      <input
+        accept="image/*"
+        hidden
+        type="file"
+        multiple
+        id="upload-images"
+        onChange={onUploadFromComputerChange}
+      />
+
+      <label
+        htmlFor="upload-images"
+        className="absolute cursor-pointer bg-yellow-300 py-[1%] px-[2%] shadow-2xl whitespace-nowrap rounded-full bottom-0 right-0 text-2xl m-[1%]"
       >
         + Neues Bild
-      </button>
+      </label>
     </>
   );
 };
