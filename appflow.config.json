@@ -1,0 +1,9 @@
+{
+	"apps": [
+		{
+			"appId": "cdd64b72",
+			"dependencyInstallCommand": "npm i -g pnpm && pnpm i",
+			"webBuildCommand": "pnpm build"
+		}
+	]
+}
